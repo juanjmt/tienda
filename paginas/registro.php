@@ -3,7 +3,7 @@
 </div>
 <div class="col-md-6 col-lg-6 col-xs-6 col-sm-6">
 	<h4 class="">Nuevo Usuario</h4>
-	<form action="#" method="post">
+	<form action="admin/usuarios.php?accion=AddUser" method="post">
 		<div class="form-group">
 			<div class="row">
 				<label>*Nombre: </label>
