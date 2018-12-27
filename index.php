@@ -1,6 +1,6 @@
 <?php 
 	require 'paginas/headers.php';
-	require 'paginas/funciones.php';
+	require 'admin/funciones.php';
 	
 	if (isset($_GET['p'])){
 		$pagina=$_GET['p'];
@@ -11,7 +11,13 @@
 
 ?>
 <section>
+
 	<?php 
+		if (isset($_GET['men'])){
+			$mensaje=Mensajes($_GET['men']);
+			echo $mensaje;
+		}
+
 		CambioContenido($pagina);
 	?>
 
