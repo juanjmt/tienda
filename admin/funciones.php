@@ -35,20 +35,55 @@
 		return $mensaje;
 
 	}
+	function Login($email,$clave){
+		global $conexion;
+		$clave=md5($clave);
+		$usuario = $conexion->prepare("SELECT * FROM usuarios WHERE email = :email and pass = :pass ");
+		$usuario->bindParam(":email", $email, PDO::PARAM_STR);
+		$usuario->bindParam(":pass", $clave, PDO::PARAM_STR);
+		if ($usuario->execute() && $usuario->rowCount()>0) {
+			$usuario=$usuario->fetch();
+			session_start();
+			$_SESSION["usuario"] = array("nombre" => $usuario["nombre"],"apellido" => $usuario["apellido"], "email" => $usuario["email"]);
+			header("Location: ../index.php");
+		}else{
+			$mensaje='novalida';
+			header("Location: ../index.php?p=login&men=$mensaje");
+		}
+
+	}
 
 	function Mensajes($tipo){
 		switch ($tipo) {
 			case 'guardado':
-				$men='Registro guardado con exito';
+				$men='<div class="alert alert-success alert-dismissible" role="alert">
+  						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Registro guardado con exito
+				</div>';
 			break;
 			case 'duplicado':
-				$men='Registro ya existe';
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+	  						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	  						Error, Registro ya existe
+					</div>';
 			break;
 			case 'errorguardar':
-				$men='Error al guardar';
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+	  						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	  						Error, no se pudo guardar
+					</div>';
 			break;
-			case 'editado':
-				# code...
+			case 'novalida':
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+  						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Error, credenciales no validas
+				</div>';
+			break;
+			case 'camposvacios':
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+  					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Error, Campos Vacios
+				</div>';
 			break;
 			case 'eliminado':
 				# code...
@@ -59,6 +94,14 @@
 			break;
 		}
 		return $men;
+
+	}
+
+	function CerrarSession(){
+		session_start();
+		unset( $_SESSION );
+		session_destroy();
+		header("location: ../index.php");
 
 	}
 	
