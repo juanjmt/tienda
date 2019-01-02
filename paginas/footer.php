@@ -1,5 +1,5 @@
 	</div>
-	<div class="footer" style="background-color: #f0f0f0;  position: absolute;  bottom: 0;  width: 100%;  height: 150px; color:#000000;">
+	<div class="footer pie">
 		<div class="row">
 			<div class="col-lg-4 col-md-4 col-sm-4 col-xs-4 help-block">
 
@@ -23,12 +23,9 @@
 				 <i class="fab fa-instagram" style="margin: 10px;  margin-left: 30px;"></i>
 				</div>
 			</div>
-			
-
 		</div>
-		
-    </div>
-
 	</div>
+		
+
 </body>
 </html>

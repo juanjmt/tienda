@@ -10,7 +10,7 @@
 	
 
 ?>
-<section>
+<section id="cargaConetendio">
 
 	<?php 
 		if (isset($_GET['men'])){
