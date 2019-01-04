@@ -1,6 +1,7 @@
 <?php 
 	require 'paginas/headers.php';
 	require 'admin/funciones.php';
+	require 'admin/conexion.php';
 	
 	if (isset($_GET['p'])){
 		$pagina=$_GET['p'];

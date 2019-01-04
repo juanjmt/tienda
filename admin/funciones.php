@@ -85,6 +85,12 @@
   						Error, Campos Vacios
 				</div>';
 			break;
+			case 'noimagen':
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+  					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Error, Debe Cargar una imagen
+				</div>';
+			break;
 			case 'eliminado':
 				# code...
 			break;
@@ -96,12 +102,45 @@
 		return $men;
 
 	}
-
 	function CerrarSession(){
 		session_start();
 		unset( $_SESSION );
 		session_destroy();
 		header("location: ../index.php");
+	}
+	function guardarProductos($nombre,$categoria,$marca,$precio,$presentacion,$stock,$imgprod){
+		global $conexion;
+		$directorio = "imagenes/productos/".$imgprod["name"];
+		if( move_uploaded_file($imgprod["tmp_name"], $directorio ) == true ){
+			$prod = $conexion->prepare("SELECT * FROM productos WHERE Nombre = :Nombre");
+			$prod->bindParam(":Nombre", $nombre, PDO::PARAM_STR);
+			if($prod->execute() && $prod->rowCount()==0){
+				$producto = $conexion->prepare("INSERT INTO productos (Nombre, Precio, Marca, Categoria, Presentacion, Stock, Imagen) VALUES (:Nombre, :Precio, :Marca, :Categoria, :Presentacion, :Stock, :Imagen)");
+				$producto->bindParam(":Nombre", $nombre, PDO::PARAM_STR);
+				$producto->bindParam(":Precio", $precio, PDO::PARAM_STR);
+				$producto->bindParam(":Marca", $marca, PDO::PARAM_INT);
+				$producto->bindParam(":Categoria", $categoria, PDO::PARAM_INT);
+				$producto->bindParam(":Presentacion", $presentacion, PDO::PARAM_STR);
+				$producto->bindParam(":Stock", $stock, PDO::PARAM_INT);
+				$producto->bindParam(":Imagen", $imgprod["name"], PDO::PARAM_STR);
+				if ($producto->execute()){
+					$mensaje='guardado';
+					header("Location: index.php?p=productos&men=$mensaje");
+				}else{
+					$mensaje='errorguardar';
+					header("Location: index.php?p=productos&men=$mensaje");
+				}
+
+
+			}else{
+				$mensaje='duplicado';
+				header("Location:index.php?p=productos&men=$mensaje");
+			}
+
+		}else{
+			$mensaje='noimagen';
+			header("Location:index.php?p=productos&men=$mensaje");
+		}
 
 	}
 	
