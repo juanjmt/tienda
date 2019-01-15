@@ -11,18 +11,17 @@ if( isset( $_GET["accion"] ) ){
 			$email=$_POST['email'];
 			$pass=$_POST['pass'];
 			if ($nombre!='' && $apellido!='' && $email!='' && $pass!=''){
-				$resp=guardarUsuario($nombre,$apellido,$email,$pass);
+				guardarUsuario($nombre,$apellido,$email,$pass);
 			}else{
 				$resp='camposvacios';
 				header("Location: ../index.php?p=registro&men=$resp");
 			}
-			echo $resp;
 		break;
 		case 'login':
 			$email=$_POST['email'];
 			$clave=$_POST['clave'];
-			$resp=Login($email,$clave);
-			echo $resp;
+			Login($email,$clave);
+			
 		break;
 		case 'cerrarsession':
 
