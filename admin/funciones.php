@@ -143,5 +143,65 @@
 		}
 
 	}
+	function ListadoProductos($pag,$limite){
+		global $conexion;
+		$posicion = ($pag - 1) * $limite;
+		$productos = $conexion->prepare("SELECT p.Nombre as nompro, p.precio, p.presentacion,p.Imagen, m.Nombre as nommarca, c.Nombre as nomcate FROM productos as p, marcas as m, categorias as c where m.idMarca=p.Marca and c.idCategoria=p.Categoria LIMIT :posicion, :limite");
+		$productos->bindParam(":posicion", $posicion, PDO::PARAM_INT);
+		$productos->bindParam(":limite", $limite, PDO::PARAM_INT);
+		$productos->execute();
+		$info='<table class="table table-striped"><tr><th>#</th><th>Nombre</th><th>Presentación</th><th>Precio</th><th>Marca</th><th>Categoria</th><th>Imagen</th><th colspan="2">Acción</th></tr>';
+		$i=1;
+		while ($pro=$productos->fetch()) {
+			$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td><td><a><i style="font-size:20px;" class="glyphicon glyphicon-pencil"></i></a></td><td><a><i style="font-size:20px;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
+			$i++;
+		}
+		$info.='</table>';
+		// solo para sacar la cantidad de registros
+		$productosn = $conexion->prepare("SELECT count(*) FROM productos");
+		$productosn->execute();
+		$total_filas = $productosn->fetchColumn();
+
+		$cantpag=ceil($total_filas/$limite);
+		//para pagina anterior
+		if ($pag>1){
+			$anterior=$pag-1;
+		}else{
+			$anterior=$pag;
+		}
+
+		//para pagina siguiente
+		if ($pag<$cantpag){
+			$siguiente=$pag+1;
+		}else{
+			$siguiente=$pag;
+		}
+
+
+
+		$info.='<nav style="float:right;" aria-label="Page navigation">
+		  <ul class="pagination">
+		    <li>
+		      <a href="?p=administrar&pag='.$anterior.'" aria-label="Previous">
+		        <span aria-hidden="true">&laquo;</span>
+		      </a>
+		    </li>';
+		    $pagi=1;
+		    for ($i=1; $i <= $cantpag ; $i++) { 
+		    	
+		    	$info.='<li><a href="?p=administrar&pag='.$i.'">'.$i.'</a></li>';
+		    }
+
+		    $info.='<li>
+		      <a href="?p=administrar&pag='.$siguiente.'" aria-label="Next">
+		        <span aria-hidden="true">&raquo;</span>
+		      </a>
+		    </li>
+		  </ul>
+		</nav>';
+
+		return $info;
+
+	}
 	
 ?>
