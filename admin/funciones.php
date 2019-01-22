@@ -146,14 +146,14 @@
 	function ListadoProductos($pag,$limite){
 		global $conexion;
 		$posicion = ($pag - 1) * $limite;
-		$productos = $conexion->prepare("SELECT p.Nombre as nompro, p.precio, p.presentacion,p.Imagen, m.Nombre as nommarca, c.Nombre as nomcate FROM productos as p, marcas as m, categorias as c where m.idMarca=p.Marca and c.idCategoria=p.Categoria LIMIT :posicion, :limite");
+		$productos = $conexion->prepare("SELECT p.Nombre as nompro, p.idProducto, p.precio, p.presentacion,p.Imagen, m.Nombre as nommarca, c.Nombre as nomcate FROM productos as p, marcas as m, categorias as c where m.idMarca=p.Marca and c.idCategoria=p.Categoria LIMIT :posicion, :limite");
 		$productos->bindParam(":posicion", $posicion, PDO::PARAM_INT);
 		$productos->bindParam(":limite", $limite, PDO::PARAM_INT);
 		$productos->execute();
 		$info='<table class="table table-striped"><tr><th>#</th><th>Nombre</th><th>Presentación</th><th>Precio</th><th>Marca</th><th>Categoria</th><th>Imagen</th><th colspan="2">Acción</th></tr>';
 		$i=1;
 		while ($pro=$productos->fetch()) {
-			$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td><td><a><i style="font-size:20px;" class="glyphicon glyphicon-pencil"></i></a></td><td><a><i style="font-size:20px;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
+			$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td><td><a href="?p=productos&metodo=edit&idpro='.$pro['idProducto'].'" ><i style="font-size:20px;" class="glyphicon glyphicon-pencil"></i></a></td><td><a><i style="font-size:20px;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
 			$i++;
 		}
 		$info.='</table>';
@@ -201,6 +201,51 @@
 		</nav>';
 
 		return $info;
+
+	}
+
+	function ConsultaProducto($id){
+		global $conexion;
+		$productos = $conexion->prepare("SELECT * FROM productos WHERE idProducto=:idProducto");
+		$productos->bindParam(":idProducto", $id, PDO::PARAM_INT);
+		$productos->execute();
+		$pro=$productos->fetch();
+		$info=$pro['idProducto'].'||'.$pro['Nombre'].'||'.$pro['Precio'].'||'.$pro['Marca'].'||'.$pro['Categoria'].'||'.$pro['Presentacion'].'||'.$pro['Stock'].'||'.$pro['Imagen'];
+
+		return $info;
+	}
+
+	function editarProductos($idProducto,$nombre,$categoria,$marca,$precio,$presentacion,$stock,$imgprod){
+		global $conexion;
+		$directorio = "imagenes/productos/".$imgprod["name"];
+		if( move_uploaded_file($imgprod["tmp_name"], $directorio ) == true ){
+			$prod = $conexion->prepare("SELECT * FROM productos WHERE Nombre = :Nombre");
+			$prod->bindParam(":Nombre", $nombre, PDO::PARAM_STR);
+			if($prod->execute() && $prod->rowCount()==0){
+				$imagen=$imgprod["name"];
+				//$producto = $conexion->prepare("UPDATE productos SET Nombre = :Nombre, Precio = :Precio, Marca = :Marca, Categoria = :Catagoria, Presentacion = :Presentacion, Stock = :Stock, Imagen = :Imagen WHERE idProducto = :idProducto");
+				$producto = "UPDATE productos SET Nombre = '$nombre', Precio = '$precio', Marca = '$marca', Categoria = '$categoria', Presentacion = '$presentacion', Stock = '$stock', Imagen = '$imagen' WHERE idProducto ='$idProducto'";
+				$producto = $conexion->prepare($producto);
+
+
+				if ($producto->execute()){
+					$mensaje='guardado';
+					header("Location: index.php?p=administrar&men=$mensaje");
+				}else{
+					$mensaje='errorguardar';
+					header("Location: index.php?p=productos&men=$mensaje");
+				}
+			}else{
+				$mensaje='duplicado';
+				header("Location:index.php?p=productos&men=$mensaje");
+			}
+
+		}else{
+			$mensaje='noimagen';
+			header("Location:index.php?p=productos&men=$mensaje");
+		}
+
+		return $producto;
 
 	}
 	

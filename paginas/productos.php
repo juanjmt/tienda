@@ -1,6 +1,9 @@
 <?php 
 		global $conexion;
-		if (isset($_GET['accion'])){
+		echo 'metodo'.$_GET['metodo'];
+		echo 'accion'.$_GET['accion'];
+
+		if (isset($_GET['accion']) && !empty($_GET['accion'])){
 			switch ($_GET['accion']) {
 				case 'guardar':
 					$nombre=$_POST['nombre'];
@@ -13,8 +16,49 @@
 
 					guardarProductos($nombre,$categoria,$marca,$precio,$presentacion,$stock,$imgprod);
 				break;
+				case 'editar':
+					$nombre=$_POST['nombre'];
+					$categoria=$_POST['categoria'];
+					$marca=$_POST['marca'];
+					$precio=$_POST['precio'];
+					$presentacion=$_POST['presentacion'];
+					$stock=$_POST['stock'];
+					$imgprod=$_FILES['imgprod'];
+					$idProducto=$_POST['idProducto'];
+
+					editarProductos($idProducto,$nombre,$categoria,$marca,$precio,$presentacion,$stock,$imgprod);
+				break;
 				
 				
+			}
+		}
+		if (isset($_GET['metodo']) && !empty($_GET['metodo'])){
+			switch ($_GET['metodo']) {
+				case 'edit':
+					$res=ConsultaProducto($_GET['idpro']);
+					$accion='editar';
+					$res=explode('||',$res);
+					$idProducto=$res[0];
+					$nombre=$res[1];
+					$categoria=$res[4];
+					$mar=$res[3];
+					$precio=$res[2];
+					$presentacion=$res[5];
+					$stock=$res[6];
+					$imgprod=$res[7];
+				break;
+				case 'new':
+					$accion='guardar';
+					$idProducto='';
+					$nombre='';
+					$categoria='';
+					$mar='';
+					$precio='';
+					$presentacion='';
+					$stock='';
+					$imgprod='';
+					
+				break;
 			}
 		}
 ?>
@@ -24,12 +68,13 @@
 </div>
 <div class="col-md-6 col-lg-6 col-xs-6 col-sm-6">
 	<h4 class="">Registro de Producto</h4>
-	<form action="?p=productos&accion=guardar" method="POST" enctype="multipart/form-data">
+	<form action="?p=productos&accion=<?php echo $accion; ?>" method="POST" enctype="multipart/form-data">
 		<div class="form-group">
 			<div class="row">
 				<label>Nombre: </label>
-				<input type="text" class="form-control" placeholder="Nombre" name="nombre" id="nombre">
+				<input type="text" class="form-control" placeholder="Nombre" name="nombre" id="nombre" value="<?php echo $nombre; ?>">
 			</div>
+			<input type="hidden" name="idProducto" id="idProducto" value="<?php echo $idProducto;  ?>">
 			<br>
 			<div class="row">
 				<label>Categoria: </label>
@@ -39,7 +84,12 @@
 						$categorias = $conexion->prepare("SELECT * FROM categorias");
 						$categorias->execute();
 						while ($cate=$categorias->fetch()) {
-							echo '<option value='.$cate['idCategoria'].'>'.$cate['Nombre'].'</option>';
+							if ($categoria==$cate['idCategoria']){
+								echo '<option selected value='.$cate['idCategoria'].'>'.$cate['Nombre'].'</option>';
+							}else{
+								echo '<option value='.$cate['idCategoria'].'>'.$cate['Nombre'].'</option>';
+							}
+							
 						}
 
 					?>
@@ -57,7 +107,11 @@
 							$marcas = $conexion->prepare("SELECT * FROM marcas");
 							$marcas->execute();
 							while ($marca = $marcas->fetch()){
+								if ($mar==$marca['idMarca']){
+									echo '<option selected value='.$marca["idMarca"].'>'.$marca["Nombre"].'</option>'; 
+								}else{
 									echo '<option value='.$marca["idMarca"].'>'.$marca["Nombre"].'</option>'; 
+								}
 							} 
 						?>
 			</select>
@@ -65,22 +119,31 @@
 			<br>
 			<div class="row">
 				<label>Precio: </label>	
-				<input type="text" class="form-control" placeholder="Precio" name="precio" id="precio">
+				<input type="text" class="form-control" placeholder="Precio" name="precio" id="precio" value="<?php echo $precio; ?>">
 			</div>
 			<br>
 			<div class="row">
 				<label>Presentacion: </label>	
-				<input type="text" class="form-control" placeholder="Presentación" name="presentacion" id="presentacion">
+				<input type="text" class="form-control" placeholder="Presentación" name="presentacion" id="presentacion" value="<?php echo $presentacion; ?>">
 			</div>
 			<br>
 			<div class="row">
 				<label>Stock: </label>	
-				<input type="text" class="form-control" placeholder="Stock" name="stock" id="stock">
+				<input type="text" class="form-control" placeholder="Stock" name="stock" id="stock" value="<?php echo $stock; ?>">
 			</div>
 			<br>
 			<div class="row">
-				<label>Imagen: </label>	
-				<input type="file" name="imgprod" id="imgprod">
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+					<label>Imagen: </label>	
+					<input type="file" name="imgprod" id="imgprod">
+				</div>
+				<div class="col-lg-6 col-md-6 col-sm-6 col-xs-6">
+					<?php 
+					if ($imgprod!=''){
+						echo '<img src="imagenes/productos/'.$imgprod.'" alt="" class="img-rounded" height="50px" widht="50px">';
+					}
+					?>
+				</div>
 			</div>
 			<br>
 			<div class="row text-center">
