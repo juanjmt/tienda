@@ -5,6 +5,7 @@
 		$pag=1;
 	}
 
+
 ?>
 
 <div class="row">

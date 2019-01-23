@@ -28,8 +28,11 @@
 
 					editarProductos($idProducto,$nombre,$categoria,$marca,$precio,$presentacion,$stock,$imgprod);
 				break;
-				
-				
+				case 'delete':
+					$idProducto=$_GET['idpro'];
+					eliminarProducto($idProducto);
+
+				break;
 			}
 		}
 		if (isset($_GET['metodo']) && !empty($_GET['metodo'])){

@@ -92,12 +92,18 @@
 				</div>';
 			break;
 			case 'eliminado':
-				# code...
+				$men='<div class="alert alert-success alert-dismissible" role="alert">
+  						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Registro eliminado con exito
+				</div>';
+			break;
+			case 'erroreliminar':
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+  					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Error, No se puede eliminar
+				</div>';
 			break;
 			
-			default:
-				# code...
-			break;
 		}
 		return $men;
 
@@ -153,7 +159,9 @@
 		$info='<table class="table table-striped"><tr><th>#</th><th>Nombre</th><th>Presentación</th><th>Precio</th><th>Marca</th><th>Categoria</th><th>Imagen</th><th colspan="2">Acción</th></tr>';
 		$i=1;
 		while ($pro=$productos->fetch()) {
-			$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td><td><a href="?p=productos&metodo=edit&idpro='.$pro['idProducto'].'" ><i style="font-size:20px;" class="glyphicon glyphicon-pencil"></i></a></td><td><a><i style="font-size:20px;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
+			$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td>
+			<td><a href="?p=productos&metodo=edit&idpro='.$pro['idProducto'].'" ><i style="font-size:20px; cursor:pointer;" class="glyphicon glyphicon-pencil"></i></a></td>
+			<td><a href="?p=productos&accion=delete&idpro='.$pro['idProducto'].'"><i style="font-size:20px; cursor:pointer;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
 			$i++;
 		}
 		$info.='</table>';
@@ -219,25 +227,18 @@
 		global $conexion;
 		$directorio = "imagenes/productos/".$imgprod["name"];
 		if( move_uploaded_file($imgprod["tmp_name"], $directorio ) == true ){
-			$prod = $conexion->prepare("SELECT * FROM productos WHERE Nombre = :Nombre");
-			$prod->bindParam(":Nombre", $nombre, PDO::PARAM_STR);
-			if($prod->execute() && $prod->rowCount()==0){
-				$imagen=$imgprod["name"];
-				//$producto = $conexion->prepare("UPDATE productos SET Nombre = :Nombre, Precio = :Precio, Marca = :Marca, Categoria = :Catagoria, Presentacion = :Presentacion, Stock = :Stock, Imagen = :Imagen WHERE idProducto = :idProducto");
-				$producto = "UPDATE productos SET Nombre = '$nombre', Precio = '$precio', Marca = '$marca', Categoria = '$categoria', Presentacion = '$presentacion', Stock = '$stock', Imagen = '$imagen' WHERE idProducto ='$idProducto'";
-				$producto = $conexion->prepare($producto);
+			$imagen=$imgprod["name"];
+			//$producto = $conexion->prepare("UPDATE productos SET Nombre = :Nombre, Precio = :Precio, Marca = :Marca, Categoria = :Catagoria, Presentacion = :Presentacion, Stock = :Stock, Imagen = :Imagen WHERE idProducto = :idProducto");
+			$producto = "UPDATE productos SET Nombre = '$nombre', Precio = '$precio', Marca = '$marca', Categoria = '$categoria', Presentacion = '$presentacion', Stock = '$stock', Imagen = '$imagen' WHERE idProducto ='$idProducto'";
+			$producto = $conexion->prepare($producto);
 
 
-				if ($producto->execute()){
-					$mensaje='guardado';
-					header("Location: index.php?p=administrar&men=$mensaje");
-				}else{
-					$mensaje='errorguardar';
-					header("Location: index.php?p=productos&men=$mensaje");
-				}
+			if ($producto->execute()){
+				$mensaje='guardado';
+				header("Location: index.php?p=administrar&men=$mensaje");
 			}else{
-				$mensaje='duplicado';
-				header("Location:index.php?p=productos&men=$mensaje");
+				$mensaje='errorguardar';
+				header("Location: index.php?p=productos&men=$mensaje");
 			}
 
 		}else{
@@ -246,7 +247,18 @@
 		}
 
 		return $producto;
-
+	}
+	function eliminarProducto($idProducto){
+		global $conexion;
+		$sql = "DELETE FROM productos  WHERE idProducto ='$idProducto'";
+		if ($conexion->exec($sql)){
+			$mensaje='eliminado';
+			header("Location: index.php?p=administrar&men=$mensaje");
+		}else{
+			$mensaje='erroreliminar';
+			header("Location: index.php?p=administrar&men=$mensaje");
+		}
+		
 	}
 	
 ?>
