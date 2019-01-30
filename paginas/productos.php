@@ -1,4 +1,5 @@
 <?php 
+		VerificarSession();
 		global $conexion;
 		echo 'metodo'.$_GET['metodo'];
 		echo 'accion'.$_GET['accion'];

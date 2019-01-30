@@ -1,11 +1,10 @@
 <?php
+	VerificarSession();
 	if(isset($_GET['pag'])){
 		$pag=$_GET['pag'];
 	}else{
 		$pag=1;
 	}
-
-
 ?>
 
 <div class="row">

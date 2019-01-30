@@ -103,6 +103,12 @@
   						Error, No se puede eliminar
 				</div>';
 			break;
+			case 'sinsession':
+			$men='<div class="alert alert-danger alert-dismissible" role="alert">
+  					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Error, Debes loguearte el sistema
+				</div>';
+			break;
 			
 		}
 		return $men;
@@ -149,22 +155,40 @@
 		}
 
 	}
-	function ListadoProductos($pag,$limite){
+	function ListadoProductos($pag,$limite,$origen){
 		global $conexion;
 		$posicion = ($pag - 1) * $limite;
 		$productos = $conexion->prepare("SELECT p.Nombre as nompro, p.idProducto, p.precio, p.presentacion,p.Imagen, m.Nombre as nommarca, c.Nombre as nomcate FROM productos as p, marcas as m, categorias as c where m.idMarca=p.Marca and c.idCategoria=p.Categoria LIMIT :posicion, :limite");
 		$productos->bindParam(":posicion", $posicion, PDO::PARAM_INT);
 		$productos->bindParam(":limite", $limite, PDO::PARAM_INT);
 		$productos->execute();
-		$info='<table class="table table-striped"><tr><th>#</th><th>Nombre</th><th>Presentación</th><th>Precio</th><th>Marca</th><th>Categoria</th><th>Imagen</th><th colspan="2">Acción</th></tr>';
-		$i=1;
-		while ($pro=$productos->fetch()) {
-			$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td>
-			<td><a href="?p=productos&metodo=edit&idpro='.$pro['idProducto'].'" ><i style="font-size:20px; cursor:pointer;" class="glyphicon glyphicon-pencil"></i></a></td>
-			<td><a href="?p=productos&accion=delete&idpro='.$pro['idProducto'].'"><i style="font-size:20px; cursor:pointer;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
-			$i++;
+		if ($origen!='frontend'){
+			$info='<table class="table table-striped"><tr><th>#</th><th>Nombre</th><th>Presentación</th><th>Precio</th><th>Marca</th><th>Categoria</th><th>Imagen</th><th colspan="2">Acción</th></tr>';
+			$i=1;
+			while ($pro=$productos->fetch()) {
+				$info.='<tr><td>'.$i.'</td><td>'.$pro['nompro'].'</td><td>'.$pro['presentacion'].'</td><td>'.$pro['precio'].'</td> <td>'.$pro['nommarca'].'</td><td>'.$pro['nomcate'].'</td><td><img src="imagenes/productos/'.$pro['Imagen'].'" alt="" class="img-rounded" height="50px" widht="50px"></td>
+				<td><a href="?p=productos&metodo=edit&idpro='.$pro['idProducto'].'" ><i style="font-size:20px; cursor:pointer;" class="glyphicon glyphicon-pencil"></i></a></td>
+				<td><a href="?p=productos&accion=delete&idpro='.$pro['idProducto'].'"><i style="font-size:20px; cursor:pointer;" class="glyphicon glyphicon-remove"></i></a></td></tr>';
+				$i++;
+			}
+			$info.='</table>';
+			$p='administrar';
+		}else{
+			$p='inicio';
+			while ($pro=$productos->fetch()) {
+				$info.='<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
+						<div class="thumbnail">
+					      <img src="imagenes/productos/'.$pro['Imagen'].'" alt="" style=" height: 200px; widht:200px;" >
+					      <div class="caption" style="background-color:#f0f0f0;">
+					        <h4 style="color:#00a5da;">$'.$pro['precio'].'</h4>
+					        <h4 style="color:#66675f;">'.$pro['nompro'].'</h4>
+					        <p style="color:#66675f;">'.$pro['presentacion'].'</p>
+					      </div>
+					    </div>
+					</div>';
+			}
+
 		}
-		$info.='</table>';
 		// solo para sacar la cantidad de registros
 		$productosn = $conexion->prepare("SELECT count(*) FROM productos");
 		$productosn->execute();
@@ -190,18 +214,18 @@
 		$info.='<nav style="float:right;" aria-label="Page navigation">
 		  <ul class="pagination">
 		    <li>
-		      <a href="?p=administrar&pag='.$anterior.'" aria-label="Previous">
+		      <a href="?p='.$p.'&pag='.$anterior.'" aria-label="Previous">
 		        <span aria-hidden="true">&laquo;</span>
 		      </a>
 		    </li>';
 		    $pagi=1;
 		    for ($i=1; $i <= $cantpag ; $i++) { 
 		    	
-		    	$info.='<li><a href="?p=administrar&pag='.$i.'">'.$i.'</a></li>';
+		    	$info.='<li><a href="?p='.$p.'&pag='.$i.'">'.$i.'</a></li>';
 		    }
 
 		    $info.='<li>
-		      <a href="?p=administrar&pag='.$siguiente.'" aria-label="Next">
+		      <a href="?p='.$p.'&pag='.$siguiente.'" aria-label="Next">
 		        <span aria-hidden="true">&raquo;</span>
 		      </a>
 		    </li>
@@ -261,4 +285,10 @@
 		
 	}
 	
+	function VerificarSession(){
+		if(empty($_SESSION["usuario"])){
+			$mensaje='sinsession';
+			header("Location: ?p=login&men=$mensaje");
+		}
+	}
 ?>
