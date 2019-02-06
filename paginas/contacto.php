@@ -1,9 +1,15 @@
+<?php 
+	if (isset($_POST['enviar'])){
+		echo 'dsdsa';
+	}
+
+?>
 <div class="col-md-3 col-lg-3 col-xs-3 col-sm-3">
 	
 </div>
 <div class="col-md-6 col-lg-6 col-xs-6 col-sm-6">
 	<h4 class="">Contacto</h4>
-	<form action="#" method="post">
+	<form action="admin/usuarios.php?accion=contactando" method="POST">
 		<div class="form-group">
 			<div class="row">
 				<label>Nombre: </label>

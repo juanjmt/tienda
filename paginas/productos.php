@@ -34,6 +34,9 @@
 					eliminarProducto($idProducto);
 
 				break;
+				case 'descarga':
+					descargaArchivo();
+				break;
 			}
 		}
 		if (isset($_GET['metodo']) && !empty($_GET['metodo'])){

@@ -109,6 +109,18 @@
   						Error, Debes loguearte el sistema
 				</div>';
 			break;
+			case 'erroremail':
+				$men='<div class="alert alert-danger alert-dismissible" role="alert">
+  					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Error, No se pudo enviar el email
+				</div>';
+			break;
+			case 'emailenviado':
+				$men='<div class="alert alert-success alert-dismissible" role="alert">
+  						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+  						Email enviado con exito
+				</div>';
+			break;
 			
 		}
 		return $men;
@@ -290,5 +302,75 @@
 			$mensaje='sinsession';
 			header("Location: ?p=login&men=$mensaje");
 		}
+	}
+
+	function descargaArchivo(){
+		global $conexion;
+		$productos = "SELECT p.Nombre as nompro, p.idProducto, p.precio, p.presentacion,p.Imagen, m.Nombre as nommarca, c.Nombre as nomcate FROM productos as p, marcas as m, categorias as c where m.idMarca=p.Marca and c.idCategoria=p.Categoria";
+		$productos=$conexion->prepare($productos);
+		$productos->execute();
+		$archivoname = "inventario.xls";
+        unlink($archivoname);
+        $fileHandle = fopen($archivoname, 'w') or die('No se puede crear el Archivo');
+        $info='';
+		while ($pro=$productos->fetch()) {
+			$info.=$pro['nompro'].','.$pro['presentacion'].','.$pro['precio'].','.$pro['nommarca'].','.$pro['nomcate'];
+			$info .="\n";
+		}
+		fwrite($fileHandle, $info);
+        fclose($fileHandle);
+            
+            
+        // push file to browser
+        header('Content-Type: application/x-octet-stream');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        header('Last-Modified: '.date('D, d M Y H:i:s'));
+        header('Content-Disposition: attachment; filename="inventario.xls"');
+        header("Content-Length: ".filesize($archivoname));
+        unlink($archivoname);
+        echo($info);
+        readfile($archivoname);
+
+
+	}
+
+	function EnviarMail($nombrecontac,$emailcontac,$contenido){
+
+		date_default_timezone_set('America/Argentina/Buenos_Aires');
+
+		require '../phpmailer/PHPMailerAutoload.php';
+
+		$mail = new PHPMailer();
+		//indico a la clase que use SMTP
+		$mail->isSMTP();
+		//permite modo debug para ver mensajes de las cosas que van ocurriendo
+		$mail->SMTPDebug = 2;
+		//Debo de hacer autenticación SMTP
+		$mail->SMTPAuth = true;
+		$mail->SMTPSecure = 'tls';
+		//indico el servidor de Gmail para SMTP
+		$mail->Host = 'smtp.gmail.com';
+		//indico el puerto que usa Gmail
+		$mail->Port = 587;
+		//indico un usuario / clave de un usuario de gmail
+		$mail->Username="cursophpeducacionitjj@gmail.com";
+		$mail->Password="1234jjmt";
+		$mail->SetFrom($emailcontac, $nombrecontac);
+		$mail->AddReplyTo($emailcontac, $nombrecontac);
+		$mail->Subject= "Mail de contacto de  tienda";
+		$mail->MsgHTML($contenido);
+		//indico destinatario
+		$address = "juanjmt@gmail.com";
+		$mail->AddAddress($address, "Docente curso");
+		if(!$mail->Send()) {
+			//return "Error al enviar: " . $mail->ErrorInfo;
+			$mensaje='errormail';
+			
+		} else {
+			$mensaje='emailenviado';
+		} 
+
+		return $mensaje;
+		
 	}
 ?>
