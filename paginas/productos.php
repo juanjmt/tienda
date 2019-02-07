@@ -1,9 +1,6 @@
 <?php 
 		VerificarSession();
 		global $conexion;
-		echo 'metodo'.$_GET['metodo'];
-		echo 'accion'.$_GET['accion'];
-
 		if (isset($_GET['accion']) && !empty($_GET['accion'])){
 			switch ($_GET['accion']) {
 				case 'guardar':
@@ -32,10 +29,6 @@
 				case 'delete':
 					$idProducto=$_GET['idpro'];
 					eliminarProducto($idProducto);
-
-				break;
-				case 'descarga':
-					descargaArchivo();
 				break;
 			}
 		}

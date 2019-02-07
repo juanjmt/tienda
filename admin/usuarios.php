@@ -44,6 +44,9 @@ if( isset( $_GET["accion"] ) ){
 				header("Location: ../index.php?p=contacto&men=$men");
 			}
 		break;
+		case 'descarga':
+			descargaArchivo();
+		break;
 		default:
 			# code...
 		break;

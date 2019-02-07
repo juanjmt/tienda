@@ -12,7 +12,7 @@
 		<a href="?p=productos&metodo=new"><button class="btn btn-primary">Agregar Productos</button></a>
 	</div>
 	<div class="col-lg-3 col-md-3 col-xs-3 col-sm-3">
-		<a href="?p=productos&accion=descarga"><button class="btn btn-primary">Descarga Inventario</button></a>
+		<a href="admin/usuarios.php?accion=descarga"><button class="btn btn-primary">Descarga Inventario</button></a>
 	</div>
 </div>
 <br>

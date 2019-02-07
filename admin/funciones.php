@@ -309,27 +309,27 @@
 		$productos = "SELECT p.Nombre as nompro, p.idProducto, p.precio, p.presentacion,p.Imagen, m.Nombre as nommarca, c.Nombre as nomcate FROM productos as p, marcas as m, categorias as c where m.idMarca=p.Marca and c.idCategoria=p.Categoria";
 		$productos=$conexion->prepare($productos);
 		$productos->execute();
-		$archivoname = "inventario.xls";
-        unlink($archivoname);
-        $fileHandle = fopen($archivoname, 'w') or die('No se puede crear el Archivo');
+		$archivoname = "../reporte/inventario".date('Ymd').".xls";
+        //unlink($archivoname);
+        $file = fopen($archivoname, 'w') or die('No se puede crear el Archivo');
         $info='';
+        $info.='Nombre'."\t".'Presentacion'."\t".'Precio'."\t".'Marca'."\t".'Categoria';
+        $info.="\n";
 		while ($pro=$productos->fetch()) {
-			$info.=$pro['nompro'].','.$pro['presentacion'].','.$pro['precio'].','.$pro['nommarca'].','.$pro['nomcate'];
+			$info.=$pro['nompro']."\t".$pro['presentacion']."\t".$pro['precio']."\t".$pro['nommarca']."\t".$pro['nomcate'];
 			$info .="\n";
 		}
-		fwrite($fileHandle, $info);
-        fclose($fileHandle);
-            
-            
+		fwrite($file, $info);
+        fclose($file);
         // push file to browser
-        header('Content-Type: application/x-octet-stream');
+        header('Content-Type: application/vnd.ms-excel');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Last-Modified: '.date('D, d M Y H:i:s'));
-        header('Content-Disposition: attachment; filename="inventario.xls"');
+        header('Content-Disposition: attachment; filename="inventario'.date('Ymd').'.xls"');
         header("Content-Length: ".filesize($archivoname));
-        unlink($archivoname);
-        echo($info);
+
         readfile($archivoname);
+        unlink($archivoname);
 
 
 	}
