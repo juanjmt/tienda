@@ -45,6 +45,7 @@
 			$usuario=$usuario->fetch();
 			session_start();
 			$_SESSION["usuario"] = array("nombre" => $usuario["nombre"],"apellido" => $usuario["apellido"], "email" => $usuario["email"]);
+			setcookie('CONFIGUSUARIO',$usuario['nombre'],time() + 365 * 24 * 60 * 60);
 			header("Location: ../index.php");
 		}else{
 			$mensaje='novalida';
@@ -128,8 +129,10 @@
 	}
 	function CerrarSession(){
 		session_start();
+
 		unset( $_SESSION );
 		session_destroy();
+
 		header("location: ../index.php");
 	}
 	function guardarProductos($nombre,$categoria,$marca,$precio,$presentacion,$stock,$imgprod){
@@ -187,6 +190,7 @@
 			$p='administrar';
 		}else{
 			$p='inicio';
+			$info='';
 			while ($pro=$productos->fetch()) {
 				$info.='<div class="col-lg-3 col-md-3 col-sm-3 col-xs-3">
 						<div class="thumbnail">
